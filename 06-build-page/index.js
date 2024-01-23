@@ -1,16 +1,25 @@
 const fs = require('fs');
 const path = require('path');
 
-const destDistFolder = path.join(__dirname, 'dist');
+const destDistFolder = path.join(__dirname, 'project-dist');
 
 const srcAssets = path.join(__dirname, 'assets');
 const destAssets = path.join(destDistFolder, 'assets');
 
-async function copyFolderAssetsForDist(srcAssets, destAssets) {
+async function createDist() {
+  await fs.promises.rm(destDistFolder, { force: true, recursive: true });
+  await fs.promises.mkdir(destDistFolder);
+  copyFolderAssetsForDist(srcAssets, destAssets);
+  bundleDistCssFile();
+  bundleDistHtmlFile();
+}
+
+createDist();
+
+const copyFolderAssetsForDist = async (srcAssets, destAssets) => {
   const dataFiles = await fs.promises.readdir(srcAssets, {
     withFileTypes: true,
   });
-  await fs.promises.rm(destAssets, { force: true, recursive: true });
   await fs.promises.mkdir(destAssets);
   for (let data of dataFiles) {
     const srcPath = path.join(srcAssets, data.name);
@@ -19,13 +28,12 @@ async function copyFolderAssetsForDist(srcAssets, destAssets) {
       ? await copyFolderAssetsForDist(srcPath, destPath)
       : await fs.promises.copyFile(srcPath, destPath);
   }
-}
-copyFolderAssetsForDist(srcAssets, destAssets);
+};
 
 const srcStyles = path.join(__dirname, 'styles');
-const destStyles = path.join(destDistFolder, 'styles.css');
+const destStyles = path.join(destDistFolder, 'style.css');
 
-const bundleDistCssFile = () => {
+const bundleDistCssFile = async () => {
   const writeStream = fs.createWriteStream(destStyles);
   fs.readdir(srcStyles, { withFileTypes: true }, (error, files) => {
     if (error) console.log(error.message);
@@ -38,15 +46,29 @@ const bundleDistCssFile = () => {
     });
   });
 };
-bundleDistCssFile();
 
 const srcComponents = path.join(__dirname, 'components');
 const srcTemplateHtml = path.join(__dirname, 'template.html');
 const destDistHtml = path.join(destDistFolder, 'index.html');
 
-const bundleDistHtmlFile = () => {
-  
-
+const bundleDistHtmlFile = async () => {
+  try {
+    const filesComponents = await fs.promises.readdir(srcComponents, {
+      withFileTypes: true,
+    });
+    let data = await fs.promises.readFile(srcTemplateHtml, 'utf-8');
+    const promisePending = filesComponents.map(async (fileHtml) => {
+      const nameComponent = path.parse(fileHtml.name).name;
+      const fileNameComponent = path.join(srcComponents, fileHtml.name);
+      const componentsHtmlWriteTag = await fs.promises.readFile(
+        fileNameComponent,
+        'utf-8',
+      );
+      data = data.replaceAll(`{{${nameComponent}}}`, componentsHtmlWriteTag);
+    });
+    await Promise.all(promisePending);
+    return await fs.promises.writeFile(destDistHtml, data);
+  } catch (error) {
+    return console.log(error.message);
+  }
 };
-
-bundleDistHtmlFile();

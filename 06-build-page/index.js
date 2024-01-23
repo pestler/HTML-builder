@@ -23,11 +23,9 @@ async function copyFolderAssetsForDist(srcAssets, destAssets) {
   for (let data of dataFiles) {
     const srcPath = path.join(srcAssets, data.name);
     const destPath = path.join(destAssets, data.name);
-    if (data.isDirectory()) {
-      await copyFolderAssetsForDist(srcPath, destPath);
-    } else {
-      await fs.promises.copyFile(srcPath, destPath);
-    }
+    data.isDirectory()
+      ? await copyFolderAssetsForDist(srcPath, destPath)
+      : await fs.promises.copyFile(srcPath, destPath);
   }
 }
 copyFolderAssetsForDist(srcAssets, destAssets);
@@ -36,5 +34,8 @@ const srcStyles = path.join(__dirname, 'styles');
 const destStyles = path.join(destDistFolder, 'styles.css');
 
 const bundleDistCssFile = () => {};
+
+
+
 
 const bundleDistHtmlFile = () => {};

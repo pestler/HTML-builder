@@ -33,9 +33,19 @@ copyFolderAssetsForDist(srcAssets, destAssets);
 const srcStyles = path.join(__dirname, 'styles');
 const destStyles = path.join(destDistFolder, 'styles.css');
 
-const bundleDistCssFile = () => {};
+const bundleDistCssFile = () => {
+  const writeStream = fs.createWriteStream(destStyles);
+  fs.readdir(srcStyles, { withFileTypes: true }, (error, files) => {
+    if (error) console.log(error.message);
+    files.forEach((file) => {
+      if (file.isFile()) {
+        const filesAll = path.join(srcStyles, file.name);
+        const filesCss = path.extname(filesAll);
+        filesCss === '.css' && fs.createReadStream(filesAll).pipe(writeStream);
+      }
+    });
+  });
+};
+bundleDistCssFile();
 
-
-
-
-const bundleDistHtmlFile = () => {};
+//const bundleDistHtmlFile = () => {};

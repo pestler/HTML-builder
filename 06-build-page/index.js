@@ -3,14 +3,6 @@ const path = require('path');
 
 const destDistFolder = path.join(__dirname, 'dist');
 
-const srcComponents = path.join(__dirname, 'components');
-const destComponents = path.join(__dirname, 'components');
-
-const srcTemplateHtml = path.join(__dirname, 'template.html');
-const destDistHtml = path.join(destDistFolder, 'index.html');
-
-const createDist = () => {};
-
 const srcAssets = path.join(__dirname, 'assets');
 const destAssets = path.join(destDistFolder, 'assets');
 
@@ -48,4 +40,13 @@ const bundleDistCssFile = () => {
 };
 bundleDistCssFile();
 
-//const bundleDistHtmlFile = () => {};
+const srcComponents = path.join(__dirname, 'components');
+const srcTemplateHtml = path.join(__dirname, 'template.html');
+const destDistHtml = path.join(destDistFolder, 'index.html');
+
+const bundleDistHtmlFile = () => {
+  
+
+};
+
+bundleDistHtmlFile();

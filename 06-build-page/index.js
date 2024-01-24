@@ -8,15 +8,15 @@ const destAssets = path.join(destDistFolder, 'assets');
 
 async function createDist() {
   await fs.promises.rm(destDistFolder, { force: true, recursive: true });
-  await fs.promises.mkdir(destDistFolder);
-  copyFolderAssetsForDist(srcAssets, destAssets);
+  await fs.promises.mkdir(destDistFolder, { force: true, recursive: true });
+  copyDir(srcAssets, destAssets);
   bundleDistCssFile();
   bundleDistHtmlFile();
 }
 
 createDist();
 
-const copyFolderAssetsForDist = async (srcAssets, destAssets) => {
+const copyDir = async (srcAssets, destAssets) => {
   const dataFiles = await fs.promises.readdir(srcAssets, {
     withFileTypes: true,
   });
@@ -25,7 +25,7 @@ const copyFolderAssetsForDist = async (srcAssets, destAssets) => {
     const srcPath = path.join(srcAssets, data.name);
     const destPath = path.join(destAssets, data.name);
     data.isDirectory()
-      ? await copyFolderAssetsForDist(srcPath, destPath)
+      ? await copyDir(srcPath, destPath)
       : await fs.promises.copyFile(srcPath, destPath);
   }
 };

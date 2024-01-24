@@ -17,16 +17,20 @@ async function createDist() {
 createDist();
 
 const copyDir = async (srcAssets, destAssets) => {
-  const dataFiles = await fs.promises.readdir(srcAssets, {
-    withFileTypes: true,
-  });
-  await fs.promises.mkdir(destAssets);
-  for (let data of dataFiles) {
-    const srcPath = path.join(srcAssets, data.name);
-    const destPath = path.join(destAssets, data.name);
-    data.isDirectory()
-      ? await copyDir(srcPath, destPath)
-      : await fs.promises.copyFile(srcPath, destPath);
+  try {
+    const dataFiles = await fs.promises.readdir(srcAssets, {
+      withFileTypes: true,
+    });
+    await fs.promises.mkdir(destAssets, { force: true, recursive: true });
+    for (let data of dataFiles) {
+      const srcPath = path.join(srcAssets, data.name);
+      const destPath = path.join(destAssets, data.name);
+      data.isDirectory()
+        ? await copyDir(srcPath, destPath)
+        : await fs.promises.copyFile(srcPath, destPath);
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 

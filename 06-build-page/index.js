@@ -21,6 +21,7 @@ const copyDir = async (srcAssets, destAssets) => {
     const dataFiles = await fs.promises.readdir(srcAssets, {
       withFileTypes: true,
     });
+    await fs.promises.rm(destAssets, { force: true, recursive: true });
     await fs.promises.mkdir(destAssets, { force: true, recursive: true });
     for (let data of dataFiles) {
       const srcPath = path.join(srcAssets, data.name);
